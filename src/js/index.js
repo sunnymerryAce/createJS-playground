@@ -7,10 +7,10 @@
 
 // EaselJS系の読み込み
 import {
-  Shape, Stage, Text, Bitmap,
-} from '@createjs/easeljs/dist/easeljs.min.js';
+  Shape, Stage, Text, Bitmap, Container, Ticker,
+} from '@createjs/easeljs';
 // TweenJS系の読み込み
-import { Tween } from '@createjs/tweenjs/dist/tweenjs.min.js';
+import { Tween } from '@createjs/tweenjs';
 
 // import CONSTANT from './helper/CONSTANT';
 // import { getIndexValueOfGivenPercentage } from './helper/util';
@@ -26,10 +26,27 @@ export default class Index {
     this.stage.addChild(Index.getRect());
     this.stage.addChild(Index.getStar());
     this.stage.addChild(Index.getText('TEST'));
+    this.circleContainer = Index.getCircleCircleContainer();
+    this.stage.addChild(this.circleContainer);
     this.stage.addChild(
       Index.getImage('https://www.cssdesignawards.com/imgs/cssda-monogram-wotd.svg'),
     );
     this.stage.update(); // Stageの描画を更新して反映
+    this.addTickerEvent();
+  }
+
+  /**
+   * tickイベントを監視することによって関数を一定間隔で実行する デフォルトでは24FPS
+   */
+  addTickerEvent() {
+    // RequestAnimationFrameの使用を明記してFPSを最適化
+    Ticker.timingMode = Ticker.RAF;
+    Ticker.addEventListener('tick', () => {
+      // 回転
+      this.circleContainer.rotation += 1;
+      this.circleContainer.x += 1;
+      this.stage.update();
+    });
   }
 
   /**
@@ -89,6 +106,25 @@ export default class Index {
     shape.regX = 100;
     shape.regY = 100;
     return shape;
+  }
+
+  /**
+   * 画像
+   */
+  static getCircleCircleContainer() {
+    const container = new Container();
+    container.x = 300;
+    container.y = 300;
+
+    for (let i = 0; i < 10; i += 1) {
+      const ball = new Shape();
+      ball.graphics.beginFill('#000000').drawCircle(0, 0, 20);
+      // 円周上に配置
+      ball.x = 100 * Math.sin((((i * 360) / 10) * Math.PI) / 180);
+      ball.y = 100 * Math.cos((((i * 360) / 10) * Math.PI) / 180);
+      container.addChild(ball);
+    }
+    return container;
   }
 }
 
